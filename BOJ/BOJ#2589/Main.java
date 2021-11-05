@@ -7,7 +7,6 @@ public class Main {
     static int[] dx = {0, 0, 1, -1};
     static char[][] map;
     static int[][] visited;
-    static List<Pos> max_idx = new ArrayList<>();
     static int max;
 	public static void main(String[] args) throws Exception, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -32,23 +31,16 @@ public class Main {
         {
             for(int j=0;j<m;j++)
             {
-                if(visited[i][j]==0 && map[i][j] == 'L')
+                if(map[i][j] == 'L')
                 {
-                    max = 0;
-                    bfs(i,j, land_cnt++);
-                    max_idx.add(new Pos(i,j));
+                    visited = new int[n][m];
+                    bfs(i,j);
                 }
             }
         }
-        
-        visited = new int[n][m];
-        for(Pos p : max_idx)
-        {
-            bfs(p.y, p.x, -1);
-        }
         System.out.println(max-1);
     }   
-    static void bfs(int y,int x, int land_cnt)
+    static void bfs(int y,int x)
     {
         Queue<Pos> q = new LinkedList<>();
         q.add(new Pos(y,x));
@@ -67,19 +59,7 @@ public class Main {
                     {
                         visited[ny][nx] = visited[p.y][p.x] + 1;
                         q.add(new Pos(ny,nx));
-                        if(land_cnt == -1)
-                        {
-                            max = Math.max(visited[ny][nx], max);
-                        }
-                    }
-                }
-                if(land_cnt != -1)
-                {
-                    if(visited[ny][nx] > max)
-                    {
-                        max = visited[ny][nx];
-                        max_idx.remove(land_cnt);
-                        max_idx.add(new Pos(ny,nx));
+                        max = Math.max(max, visited[ny][nx]);
                     }
                 }
             }            
