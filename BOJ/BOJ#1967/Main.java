@@ -2,95 +2,66 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int n,m;
-    static int[] dy = {1, -1, 0, 0};
-    static int[] dx = {0, 0, 1, -1};
-    static char[][] map;
-    static int[][] visited;
-    static List<Pos> max_idx = new ArrayList<>();
-    static int max;
+    static int n;
+    static List<Node>[] nodes;
+    static boolean[] visited;
+    static int max, max_idx;
 	public static void main(String[] args) throws Exception, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
-        st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        map = new char[n][m];
+        n = Integer.parseInt(br.readLine());
+        nodes = new ArrayList[n+1];
+        for(int i=0;i<=n;i++)
+            nodes[i] = new ArrayList<>();
         
-        for(int i=0;i<n;i++)
+        for(int i=0;i<n-1;i++)
         {
-            String tmp = br.readLine();
-            for(int j=0;j<m;j++)
-            {
-                map[i][j] = tmp.charAt(j);
-            }
+            st = new StringTokenizer(br.readLine());
+            
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            
+            nodes[a].add(new Node(b,c));
+            nodes[b].add(new Node(a,c));
         }
         
-        visited = new int[n][m];
-        int land_cnt =0;
-        for(int i=0;i<n;i++)
-        {
-            for(int j=0;j<m;j++)
-            {
-                if(visited[i][j]==0 && map[i][j] == 'L')
-                {
-                    max = 0;
-                    bfs(i,j, land_cnt++);
-                    max_idx.add(new Pos(i,j));
-                }
-            }
-        }
+        visited = new boolean[n+1];
+        visited[1] = true;
+        dfs(1,0);
         
-        visited = new int[n][m];
-        for(Pos p : max_idx)
-        {
-            bfs(p.y, p.x, -1);
-        }
-        System.out.println(max-1);
+        visited = new boolean[n+1];
+        visited[max_idx] = true;
+        dfs(max_idx,0);
+        System.out.println(max);
+        
     }   
-    static void bfs(int y,int x, int land_cnt)
+    static void dfs(int idx, int dist)
     {
-        Queue<Pos> q = new LinkedList<>();
-        q.add(new Pos(y,x));
-        visited[y][x] = 1;
-        
-        while(!q.isEmpty())
+        if(max < dist)
         {
-            Pos p = q.poll();
-            for(int i=0;i<4;i++)
+            max = dist;
+            max_idx = idx;
+        }
+        
+        for(Node next : nodes[idx])
+        {
+            if(!visited[next.data])
             {
-                int ny = p.y + dy[i];
-                int nx = p.x + dx[i];
-                if(ny >=0 && nx >=0 && ny < n && nx < m)
-                {
-                    if(visited[ny][nx]==0 && map[ny][nx] == 'L')
-                    {
-                        visited[ny][nx] = visited[p.y][p.x] + 1;
-                        q.add(new Pos(ny,nx));
-                        if(land_cnt == -1)
-                        {
-                            max = Math.max(visited[ny][nx], max);
-                        }
-                    }
-                }
-                if(land_cnt != -1)
-                {
-                    if(visited[ny][nx] > max)
-                    {
-                        max = visited[ny][nx];
-                        max_idx.remove(land_cnt);
-                        max_idx.add(new Pos(ny,nx));
-                    }
-                }
-            }            
+                visited[next.data] = true;
+                dfs(next.data, dist + next.dist);
+            }
         }
     }
 }
-class Pos{
-    int y,x;
-    Pos(int y, int x)
+
+class Node{
+    int data;
+    int dist;
+    Node(int data, int dist)
     {
-        this.y = y;
-        this.x = x;
+        this.data = data;
+        this.dist = dist;
     }
-}  
+}
+  
